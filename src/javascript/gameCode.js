@@ -2,23 +2,27 @@ window.gameCode={
 	version: "1.2101"
 };
 
-Config.history.maxStates=50; //TODO Set this back to 5 after testing
+Config.history.maxStates=5; //TODO Set this back to 5 after testing
 
 window.sidebarTabs=[
 	{
-		name: "Clothes",
+		name: "👚",
 		tableId: "clothes"
 	},
 	{
-		name: "Inventory",
+		name: "👜",
 		tableId: "inventory"
 	},
 	{
-		name: "Stats",
+		name: "📈",
 		tableId: "stats"
 	},
 	{
-		name: "Debug",
+		name: "🤡",
+		tableId: "mmavatar"
+	},
+	{
+		name: "📜",
 		tableId: "debug"
 	}
 ];
@@ -28,7 +32,7 @@ window.sidebar={
 		return (State.active.variables.sidebarTab == id) ? "" : "hidden";
 	},
 	tabClassName: function(id) {
-		return (State.active.variables.sidebarTab == id) ? "sidebar_tab_active" : "";
+		return (State.active.variables.sidebarTab == id) ? "sidebar_tab_active" : "sidebar_tab_inactive";
 	},
 	refresh: function() {
 		for (var i=0; i < window.sidebarTabs.length; i++) {

@@ -86,9 +86,9 @@
 	<<endif>>\
 
 	<<if $player.debugA>>\
-		<<print '<table id="sidebar_control"><tr><th></th><td class="'+window.sidebar.tabClassName(0)+'"><a onclick="window.sidebar.activate(0);">Clothes</a></td><td class="'+window.sidebar.tabClassName(1)+'"><a onclick="window.sidebar.activate(1);">Items</a></td><td class="'+window.sidebar.tabClassName(2)+'"><a onclick="window.sidebar.activate(2);">Stats</a></td><td class="'+window.sidebar.tabClassName(3)+'"><a onclick="window.sidebar.activate(3);">Debug</a></td></tr></table>'>>\
+		<<print '<table id="sidebar_control"><tr><th></th><td class="'+window.sidebar.tabClassName(0)+'"><a title="Clothes" onclick="window.sidebar.activate(0);">👚</a></td><td class="'+window.sidebar.tabClassName(1)+'"><a title="Inventory" onclick="window.sidebar.activate(1);">👜</a></td><td class="'+window.sidebar.tabClassName(2)+'"><a title="Stats" onclick="window.sidebar.activate(2);">📈</a></td><td class="'+window.sidebar.tabClassName(3)+'"><a title="MM Avatar" onclick="window.sidebar.activate(3);">🤡</a></td><td class="'+window.sidebar.tabClassName(4)+'"><a title="DEBUG" onclick="window.sidebar.activate(4);">📜</a></td></tr></table>'>>\
 	<<else>>\
-		<<print '<table id="sidebar_control"><tr><th></th><td class="'+window.sidebar.tabClassName(0)+'"><a onclick="window.sidebar.activate(0);">Clothes</a></td><td class="'+window.sidebar.tabClassName(1)+'"><a onclick="window.sidebar.activate(1);">Items</a></td><td class="'+window.sidebar.tabClassName(2)+'"><a onclick="window.sidebar.activate(2);">Stats</a></td></tr></table>'>>\
+		<<print '<table id="sidebar_control"><tr><th></th><td class="'+window.sidebar.tabClassName(0)+'"><a title="Clothes" onclick="window.sidebar.activate(0);">👚</a></td><td class="'+window.sidebar.tabClassName(1)+'"><a title="Inventory" onclick="window.sidebar.activate(1);">👜</a></td><td class="'+window.sidebar.tabClassName(2)+'"><a title="Stats" onclick="window.sidebar.activate(2);">📈</a></td><td class="'+window.sidebar.tabClassName(3)+'"><a title="MM Avatar" onclick="window.sidebar.activate(3);">🤡</a></td></tr></table>'>>\
 	<<endif>>\
 	\
 	<<if (not $player.secondInvLine)>>\
@@ -98,11 +98,12 @@
 	<<endif>>\
 	\
 	<div id="sidebarWindow" class="">\
-		<<print '<div id="clothes" class="'+window.sidebar.className(0)+'"><span id="sidebar_clothes"></span></div>'>>
+		<<print '<div id="clothes" class="'+window.sidebar.className(0)+'"><span id="sidebar_clothes"></span></div>'>>\
+		<<print '<div id="mmavatar" class="'+window.sidebar.className(3)+'"><span id="sidebar_mmavatar"></span></div>'>>
 		<<print '<div id="inventory" class="'+window.sidebar.className(1)+'"><<click "Phone">><<script>>Dialog.setup("Phone");	Dialog.wiki(Story.get("Phone").processText());	Dialog.open();<</script>><</click>><<getInventoryList>></div>'>>\
 		<<print '<div id="stats" class="'+window.sidebar.className(2)+'"><span id="sidebar_stats"></span></div>'>>\
 		<<if $player.debugA>>\
-			<<print '<div id="debug" class="'+window.sidebar.className(3)+'"><span id="sidebar_debug"></span></div>'>>\
+			<<print '<div id="debug" class="'+window.sidebar.className(4)+'"><span id="sidebar_debug"></span></div>'>>\
 		<<endif>>\
 	</div>\
 	\

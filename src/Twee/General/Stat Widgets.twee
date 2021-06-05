@@ -26,6 +26,7 @@
 <</widget>>\
 
 <<widget "updateClothes">>\
+<<update_mm_avatar>>\
 <<nobr>>\
 <<replace "#sidebar_clothes">>
 <!--
