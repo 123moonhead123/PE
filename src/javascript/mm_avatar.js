@@ -14,6 +14,8 @@ window.mm_avatar = {
     process_mm_avatar_update: function() {
         var imgPath = "Images/mmavatar/";
         var imgBase = "";
+        var shoeOverlay = false;
+        var hoseUnderlay = false;
         window.mm_avatar.mm_avatar_structure.forEach(element => {
             switch(element.st_name){
                 case "base":
@@ -33,7 +35,7 @@ window.mm_avatar = {
                     var hairPrefix = "";
                     var hairSuffix = "";
                     switch(State.active.variables.body.hairstyle.level){
-                        case 0:
+                        case 0: //Need to add in male hair, using same hair style for short and male now
                         case 1:
                             hairPrefix = "hair_short_";
                             break;
@@ -77,23 +79,25 @@ window.mm_avatar = {
                     var imgName = imgPath + "Hair/" + hairPrefix + hairSuffix;
                     document.getElementById(element.st_id).src = imgName;
                     break;
-                case "penis": //TODO Update images for these
+                case "penis":
                     var penisSize = State.active.variables.body.penisShrink.level;
                     var chastity = window.wardrobeFuncs.isItemMasterWearing("chastity") ? "C" : "P";
                     var imgName = imgPath + "Penis/" + chastity + penisSize + ".png";
                     document.getElementById(element.st_id).src = imgName;
                     break;
-                case "panties":
-                case "clothes":
+                case "underwear":
+                case "outerwear":
                 case "nightwear":
+                case "maid":
                     var hidePenis = false;
                     var imgEl = document.getElementById(element.st_id);
-                    var panties = window.wardrobeFuncs.getWornItem("underwear");
-                    var clothes = window.wardrobeFuncs.getWornItem("outerwear");
+                    var underwear = window.wardrobeFuncs.getWornItem("underwear");
+                    var outerwear = window.wardrobeFuncs.getWornItem("outerwear");
                     var nightwear = window.wardrobeFuncs.getWornItem("nightwear");
+                    var maid = window.wardrobeFuncs.getWornItem("maid");
                     
                     //hide penis image when wearing pants or underwear, keep it visible without underwear and skirts/dresses
-                    hidePenis = panties || (clothes && clothes.isMale) || (clothes && clothes.tags.shorts) || (clothes && !(clothes.isFemale)) || nightwear ? true : false;
+                    hidePenis = underwear || (outerwear && outerwear.isMale) || (outerwear && outerwear.tags.shorts) || (outerwear && !(outerwear.isFemale)) || nightwear || maid ? true : false;
                     if(hidePenis){
                         document.getElementById("mm_avatar_img_penis").style.display = "none";
                     }
@@ -102,22 +106,25 @@ window.mm_avatar = {
                     }
 
                     switch(element.st_name){
-                        case "panties":
-                            var wearing = panties;
+                        case "underwear":
+                            var wearing = underwear;
                             break;
-                        case "clothes":
-                            var wearing = clothes;
+                        case "outerwear":
+                            var wearing = outerwear;
                             break;
                         case "nightwear":
                             var wearing = nightwear;
                             break;
+                        case "maid":
+                          var wearing = maid;
+                          break;
                         default:
                     }
-                    var imgName = imgPath + imgBase;
+                    var imgName = imgPath + imgBase + element.st_name + "/";
                     var defaultImg = imgName;
                     if(wearing){
-                        imgName = imgName + wearing.variant + ".png"
-                        defaultImg = defaultImg + wearing.variant.substring(0, wearing.variant.length - 2) + "05.png"
+                        imgName = imgName + wearing.masterItem + "/" + wearing.variant + ".png"
+                        defaultImg = defaultImg + wearing.masterItem + "/" + wearing.variant.substring(0, wearing.variant.length - 2) + "05.png"
                         if(imgEl){
                             imgEl.src = imgName;
                             imgEl.setAttribute("onerror", "this.onerror=null;this.src='" + defaultImg + "'");
@@ -135,23 +142,37 @@ window.mm_avatar = {
                         case "bra":
                             var wearing =  window.wardrobeFuncs.getWornItem("bra");
                             break;
-                        case "socks":
+                        case "hosiery":
                             var wearing =  window.wardrobeFuncs.getWornItem("hosiery");
+                            if(wearing && this.mm_avatar_socks.some(x => x.variant == wearing.variant)) {hoseUnderlay = true}
                             break;
                         case "shoes":
                             var wearing = window.wardrobeFuncs.getWornItem("shoes");
+                            if(wearing && this.mm_avatar_shoes.some(x => x.shoeName == wearing.variant)) {shoeOverlay = true}
                             break;
                         default:
                     }
                     var imgEl = document.getElementById(element.st_id);
-                    var imgName = imgPath + imgBase;
+                    var imgName = imgPath + imgBase + element.st_name + "/";
                     var defaultImg = imgName;
                     if(wearing){
-                        imgName = imgName + wearing.variant + ".png"
-                        defaultImg = defaultImg + wearing.variant.substring(0, wearing.variant.length - 2) + "05.png"
+                        imgName = imgName + wearing.masterItem + "/" + wearing.variant + ".png"
+                        defaultImg = defaultImg + wearing.masterItem + "/" + wearing.variant.substring(0, wearing.variant.length - 2) + "05.png"
                         if(imgEl){
                             imgEl.src = imgName;
                             imgEl.setAttribute("onerror", "this.onerror=null;this.src='" + defaultImg + "'");
+                        }
+                        if(shoeOverlay && hoseUnderlay){
+                          var hosiery = window.wardrobeFuncs.getWornItem("hosiery");
+                          var shoes = window.wardrobeFuncs.getWornItem("shoes");
+                          var shoeOverlay = this.mm_avatar_socks.find(({variant}) => variant == hosiery.variant);
+                          imgName = imgPath + imgBase + element.st_name + "/" + shoes.masterItem + "/" + shoes.variant + "/" + shoeOverlay.shoeOverlay + ".png";
+                          defaultImg = imgPath + imgBase + element.st_name + "/" + shoes.masterItem + "/" + wearing.variant.substring(0, wearing.variant.length - 2) + "05/" + shoeOverlay.shoeOverlay + ".png";
+                          var shoeImgEl = document.getElementById("mm_avatar_img_shoes");
+                          if(imgEl){
+                            imgEl.src = imgName;
+                            imgEl.setAttribute("onerror", "this.onerror=null;this.src='" + defaultImg + "'");
+                          }
                         }
                     }
                     else {
@@ -212,12 +233,12 @@ window.mm_avatar = {
             "zindex": 130
         },
         {
-            "st_name": "panties",
+            "st_name": "underwear",
             "st_id": "mm_avatar_img_panties",
             "zindex": 140
         },
         {
-            "st_name": "socks",
+            "st_name": "hosiery",
             "st_id": "mm_avatar_img_socks",
             "zindex": 150
         },
@@ -227,7 +248,7 @@ window.mm_avatar = {
             "zindex": 160
         },
         {
-            "st_name": "clothes",
+            "st_name": "outerwear",
             "st_id": "mm_avatar_img_clothes",
             "zindex": 170
         },
@@ -237,399 +258,404 @@ window.mm_avatar = {
             "zindex": 180
         },
         {
+          "st_name": "maid",
+          "st_id": "mm_avatar_img_maid",
+          "zindex": 190
+        },
+        {
             "st_name": "hair",
             "st_id": "mm_avatar_img_hair",
-            "zindex": 190
+            "zindex": 200
         }
     ],
 
     mm_avatar_socks: [
         {
-          "filename": "socks_00.png",
+          "variant": "socks_00",
           "curAlt": 0,
           "sockType": "socks",
           "shoeOverlay": "blackSocks"
         },
         {
-          "filename": "socks_01.png",
+          "variant": "socks_01",
           "curAlt": 1,
           "sockType": "socks",
           "shoeOverlay": "blackSocks"
         },
         {
-          "filename": "socks_02.png",
+          "variant": "socks_02",
           "curAlt": 2,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_03.png",
+          "variant": "socks_03",
           "curAlt": 3,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_04.png",
+          "variant": "socks_04",
           "curAlt": 4,
           "sockType": "socks",
           "shoeOverlay": "blackSocks"
         },
         {
-          "filename": "socks_05.png",
+          "variant": "socks_05",
           "curAlt": 5,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_06.png",
+          "variant": "socks_06",
           "curAlt": 6,
           "sockType": "socks",
           "shoeOverlay": "greySocks"
         },
         {
-          "filename": "socks_07.png",
+          "variant": "socks_07",
           "curAlt": 7,
           "sockType": "socks",
           "shoeOverlay": "greySocks"
         },
         {
-          "filename": "socks_08.png",
+          "variant": "socks_08",
           "curAlt": 8,
           "sockType": "socks",
           "shoeOverlay": "greySocks"
         },
         {
-          "filename": "socks_09.png",
+          "variant": "socks_09",
           "curAlt": 9,
           "sockType": "socks",
           "shoeOverlay": "greySocks"
         },
         {
-          "filename": "socks_10.png",
+          "variant": "socks_10",
           "curAlt": 10,
           "sockType": "socks",
           "shoeOverlay": "greySocks"
         },
         {
-          "filename": "socks_11.png",
+          "variant": "socks_11",
           "curAlt": 11,
           "sockType": "socks",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "socks_12.png",
+          "variant": "socks_12",
           "curAlt": 12,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_13.png",
+          "variant": "socks_13",
           "curAlt": 13,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_14.png",
+          "variant": "socks_14",
           "curAlt": 14,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_15.png",
+          "variant": "socks_15",
           "curAlt": 15,
           "sockType": "socks",
           "shoeOverlay": "greySocks"
         },
         {
-          "filename": "socks_16.png",
+          "variant": "socks_16",
           "curAlt": 16,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_17.png",
+          "variant": "socks_17",
           "curAlt": 17,
           "sockType": "socks",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "socks_18.png",
+          "variant": "socks_18",
           "curAlt": 18,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_19.png",
+          "variant": "socks_19",
           "curAlt": 19,
           "sockType": "socks",
           "shoeOverlay": "blackSocks"
         },
         {
-          "filename": "socks_20.png",
+          "variant": "socks_20",
           "curAlt": 20,
           "sockType": "socks",
           "shoeOverlay": "blackSocks"
         },
         {
-          "filename": "socks_21.png",
+          "variant": "socks_21",
           "curAlt": 21,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_22.png",
+          "variant": "socks_22",
           "curAlt": 22,
           "sockType": "socks",
           "shoeOverlay": "greySocks"
         },
         {
-          "filename": "socks_23.png",
+          "variant": "socks_23",
           "curAlt": 23,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_24.png",
+          "variant": "socks_24",
           "curAlt": 24,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_25.png",
+          "variant": "socks_25",
           "curAlt": 25,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "socks_26.png",
+          "variant": "socks_26",
           "curAlt": 26,
           "sockType": "socks",
           "shoeOverlay": "blackSocks"
         },
         {
-          "filename": "socks_43.png",
+          "variant": "socks_43",
           "curAlt": 43,
           "sockType": "socks",
           "shoeOverlay": "whiteSocks"
         },
         {
-          "filename": "stockings_00.png",
+          "variant": "stockings_00",
           "curAlt": 0,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_01.png",
+          "variant": "stockings_01",
           "curAlt": 1,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_02.png",
+          "variant": "stockings_02",
           "curAlt": 2,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_03.png",
+          "variant": "stockings_03",
           "curAlt": 3,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_04.png",
+          "variant": "stockings_04",
           "curAlt": 4,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_05.png",
+          "variant": "stockings_05",
           "curAlt": 5,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_06.png",
+          "variant": "stockings_06",
           "curAlt": 6,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_07.png",
+          "variant": "stockings_07",
           "curAlt": 7,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_08.png",
+          "variant": "stockings_08",
           "curAlt": 8,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_09.png",
+          "variant": "stockings_09",
           "curAlt": 9,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_10.png",
+          "variant": "stockings_10",
           "curAlt": 10,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_11.png",
+          "variant": "stockings_11",
           "curAlt": 11,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_12.png",
+          "variant": "stockings_12",
           "curAlt": 12,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_13.png",
+          "variant": "stockings_13",
           "curAlt": 13,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_14.png",
+          "variant": "stockings_14",
           "curAlt": 14,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_15.png",
+          "variant": "stockings_15",
           "curAlt": 15,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_16.png",
+          "variant": "stockings_16",
           "curAlt": 16,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_17.png",
+          "variant": "stockings_17",
           "curAlt": 17,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_18.png",
+          "variant": "stockings_18",
           "curAlt": 18,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_19.png",
+          "variant": "stockings_19",
           "curAlt": 19,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_20.png",
+          "variant": "stockings_20",
           "curAlt": 20,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_21.png",
+          "variant": "stockings_21",
           "curAlt": 21,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_22.png",
+          "variant": "stockings_22",
           "curAlt": 22,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_23.png",
+          "variant": "stockings_23",
           "curAlt": 23,
           "sockType": "stockings",
           "shoeOverlay": "fishnet"
         },
         {
-          "filename": "stockings_24.png",
+          "variant": "stockings_24",
           "curAlt": 24,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_25.png",
+          "variant": "stockings_25",
           "curAlt": 25,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_26.png",
+          "variant": "stockings_26",
           "curAlt": 26,
           "sockType": "stockings",
           "shoeOverlay": "fishnet"
         },
         {
-          "filename": "stockings_27.png",
+          "variant": "stockings_27",
           "curAlt": 27,
           "sockType": "stockings",
           "shoeOverlay": "fishnet"
         },
         {
-          "filename": "stockings_28.png",
+          "variant": "stockings_28",
           "curAlt": 28,
           "sockType": "stockings",
           "shoeOverlay": "fishnet"
         },
         {
-          "filename": "stockings_39.png",
+          "variant": "stockings_39",
           "curAlt": 39,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_40.png",
+          "variant": "stockings_40",
           "curAlt": 40,
           "sockType": "stockings",
           "shoeOverlay": "blackStockings"
         },
         {
-          "filename": "stockings_62.png",
+          "variant": "stockings_62",
           "curAlt": 62,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_74.png",
+          "variant": "stockings_74",
           "curAlt": 74,
           "sockType": "stockings",
           "shoeOverlay": "whiteStockings"
         },
         {
-          "filename": "stockings_latex_00.png",
+          "variant": "stockings_latex_00",
           "curAlt": 0,
           "sockType": "stockings_latex",
           "shoeOverlay": "blackLatex"
         },
         {
-          "filename": "stockings_latex_01.png",
+          "variant": "stockings_latex_01",
           "curAlt": 1,
           "sockType": "stockings_latex",
           "shoeOverlay": "blackLatex"
         },
         {
-          "filename": "stockings_latex_02.png",
+          "variant": "stockings_latex_02",
           "curAlt": 2,
           "sockType": "stockings_latex",
           "shoeOverlay": "blackLatex"
         },
         {
-          "filename": "stockings_latex_03.png",
+          "variant": "stockings_latex_03",
           "curAlt": 3,
           "sockType": "stockings_latex",
           "shoeOverlay": "blackLatex"

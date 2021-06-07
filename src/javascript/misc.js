@@ -151,9 +151,10 @@ window.misc={
 			return ur[rr];
 		}
 	},
-	getMallOnMouseOver: function(image, description, isItemSet, setName){
+	getMallOnMouseOver: function(image, description, isItemSet, setName, defaultImage){
 		var ip=document.getElementById('item_preview_mall');
-		ip.src='Images/items/' + image + '';
+        ip.src= "Images/mmavatar-items/" + image;
+		ip.setAttribute("onerror", "this.onerror=null;this.src='Images/items/" + defaultImage + "'");
 		ip.className=''; 
 		var ipd = document.getElementById('item_preview_description_mall'); 
 		ipd.textContent=description;

@@ -487,9 +487,11 @@ window.itemNavigator = {
             $("#itemVariantTitle").replaceWith(itemVariantTitleSpan);
 
             var itemVariantImage = document.createElement('img');
-            itemVariantImage.src = "./Images/items/" + itemVariant.variant + ".jpg";
-            itemVariantImage.width = 300;
-            itemVariantImage.height = 300;
+            var defaultImg = "./Images/items/" + itemVariant.variant + ".jpg";
+            var thumbImage = "./Images/mmavatar-items/" + masterItem.clothingSlot + "/" + itemVariant.masterItem + "/" + itemVariant.variant + ".png";
+            itemVariantImage.src = thumbImage;
+            itemVariantImage.setAttribute("onerror", "this.onerror=null;this.src='" + defaultImg + "'");
+            itemVariantImage.style.maxHeight = 352;
             var itemVariantPictureTd = document.createElement('td');
             itemVariantPictureTd.appendChild(itemVariantImage);
             itemVariantPictureTd.id = "itemVariantPictureCell";
